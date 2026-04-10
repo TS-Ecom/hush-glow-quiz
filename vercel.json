@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/hush-glow-shade-quiz.html" }
+  ]
+}

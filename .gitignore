@@ -1,0 +1,11 @@
+.DS_Store
+*.zip
+node_modules/
+
+# Unrelated product photos (not used by quiz)
+1.jpeg
+2.png
+3.png
+4.png
+5.png
+6.png

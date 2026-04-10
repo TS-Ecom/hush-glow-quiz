@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUSH GLOW — Shade Finder Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   HUSH GLOW — Shade Finder Quiz
+   Brand: hushglow.com
+   Mobile-first | Shopify Section (Liquid+JS)
+   ============================================ */
+
+:root {
+  /* Brand Colors */
+  --color-text: #121212;
+  --color-text-light: rgba(18,18,18,0.6);
+  --color-text-inverse: #ffffff;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f9f7f4;
+  --color-bg-warm: #f3ede6;
+  --color-accent: #c1b2a0;
+  --color-accent-hover: #b0a08d;
+  --color-accent-light: #dbcfbc;
+  --color-border: #e8e2da;
+  --color-success: #5a7d5a;
+  --color-overlay: rgba(18,18,18,0.04);
+
+  /* Typography */
+  --font: 'Poppins', sans-serif;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+
+  /* Layout */
+  --max-width: 640px;
+  --container-padding: 1.25rem;
+
+  /* Transitions */
+  --transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+button, input, select, textarea { font-family: inherit; }
+
+body {
+  font-family: var(--font);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ============================================
+   QUIZ CONTAINER
+   ============================================ */
+.quiz {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.quiz__header {
+  text-align: center;
+  padding: var(--space-md) var(--container-padding);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.quiz__logo {
+  line-height: 1;
+  margin-bottom: var(--space-sm);
+}
+.quiz__logo img {
+  height: 36px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Progress Bar */
+.quiz__progress {
+  width: 100%;
+  height: 3px;
+  background: var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+.quiz__progress-fill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Step Counter */
+.quiz__step-counter {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  margin-top: var(--space-xs);
+}
+
+/* ============================================
+   QUIZ STEP (SHARED)
+   ============================================ */
+.quiz__step {
+  flex: 1;
+  display: none;
+  flex-direction: column;
+  animation: fadeSlideIn 400ms ease forwards;
+  padding-bottom: 5rem;
+}
+.quiz__step.active { display: flex; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz__step { animation: none; }
+}
+
+.quiz__content {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-md) var(--container-padding) var(--space-xl);
+  width: 100%;
+  text-align: center;
+}
+
+.quiz__title {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.quiz__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  font-weight: 400;
+  margin-bottom: var(--space-lg);
+}
+
+/* ============================================
+   STEP 1: SKIN TONE — PHOTO GRID
+   ============================================ */
+.tone-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.tone-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color var(--transition), transform var(--transition);
+  overflow: hidden;
+  position: relative;
+  background: var(--color-bg-alt);
+}
+.tone-card:hover {
+  border-color: var(--color-accent-light);
+}
+.tone-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.tone-card.selected {
+  border-color: var(--color-accent);
+}
+
+.tone-card__img {
+  aspect-ratio: 1/1;
+  background: var(--color-bg-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--color-accent);
+  overflow: hidden;
+}
+.tone-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tone-card__label {
+  display: none;
+}
+.tone-card__label--visible {
+  display: block;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  background: var(--color-bg);
+}
+
+@media (min-width: 480px) {
+  .tone-grid { gap: 1rem; }
+}
+
+/* Skip / Prefer not to answer link */
+.quiz__skip-row {
+  text-align: center;
+  margin-top: var(--space-md);
+}
+.quiz__skip-link {
+  font-family: var(--font);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--color-text-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color var(--transition);
+}
+.quiz__skip-link:hover { color: var(--color-text); }
+
+/* ============================================
+   STEP 3: AGE — PILL SELECTOR
+   ============================================ */
+.pills-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.625rem;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.pill-btn {
+  padding: 0.7rem 1.5rem;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--color-text);
+  transition: all var(--transition);
+  line-height: 1;
+}
+.pill-btn:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-alt);
+}
+.pill-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.pill-btn.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+.pill-btn--muted {
+  font-weight: 400;
+  color: var(--color-text-light);
+  font-size: 0.82rem;
+}
+.pill-btn--muted.selected {
+  color: var(--color-text-inverse);
+}
+
+/* ============================================
+   STEP 6: APPLICATION — ICON GRID
+   ============================================ */
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  max-width: 380px;
+  margin: 0 auto;
+}
+.method-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  padding: 1.5rem 1rem;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+.method-card:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-alt);
+}
+.method-card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.method-card.selected {
+  border-color: var(--color-accent);
+  background: var(--color-bg-warm);
+}
+.method-card__label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+/* ============================================
+   STEP 2–7: TEXT OPTION BUTTONS
+   ============================================ */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: var(--color-bg);
+  border: 1.5px solid var(--color-border);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--color-text);
+  text-align: left;
+  transition: all var(--transition);
+  line-height: 1.4;
+}
+.option-btn:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-alt);
+}
+.option-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.option-btn.selected {
+  border-color: var(--color-accent);
+  background: var(--color-bg-warm);
+}
+
+.option-btn__indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+.option-btn.selected .option-btn__indicator {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+.option-btn.selected .option-btn__indicator::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+}
+
+.option-btn__text strong {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.option-btn__text span {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+}
+
+/* ============================================
+   NAVIGATION (BACK LINK)
+   ============================================ */
+.quiz__nav {
+  text-align: center;
+  margin-top: var(--space-lg);
+}
+.quiz__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-light);
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  letter-spacing: 0.05em;
+  transition: color var(--transition);
+}
+.quiz__back:hover { color: var(--color-text); }
+.quiz__back svg { width: 14px; height: 14px; }
+
+/* ============================================
+   ANALYZING SCREEN
+   ============================================ */
+.analyzing {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.analyzing__inner {
+  max-width: 480px;
+  width: 100%;
+  padding: var(--space-xl) var(--container-padding);
+}
+.analyzing__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+}
+
+/* Spinner */
+.analyzing__spinner {
+  width: 48px;
+  height: 48px;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto var(--space-lg);
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.analyzing__steps {
+  list-style: none;
+  text-align: left;
+}
+.analyzing__step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  transition: color 400ms ease;
+}
+.analyzing__step-item.done {
+  color: var(--color-text);
+}
+.analyzing__step-item .check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 400ms ease;
+}
+.analyzing__step-item.done .check {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.analyzing__step-item.done .check::after {
+  content: '✓';
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* Analyzing — review */
+.analyzing__review {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin: var(--space-xl) 0 0;
+  padding: var(--space-md);
+  background: var(--color-bg-warm);
+  text-align: left;
+}
+.analyzing__review-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--color-bg);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.analyzing__review-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.analyzing__review-content {
+  flex: 1;
+  min-width: 0;
+}
+.analyzing__review-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+  line-height: 1.2;
+}
+.analyzing__review-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+.analyzing__stars {
+  font-size: 0.85rem;
+  color: var(--color-accent);
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+.analyzing__review-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-success);
+  letter-spacing: 0.02em;
+}
+.analyzing__review-verified svg {
+  width: 12px;
+  height: 12px;
+}
+.analyzing__review p {
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* ============================================
+   EMAIL CAPTURE
+   ============================================ */
+.email-capture {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--container-padding);
+  text-align: center;
+}
+.email-capture__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-md);
+  border-radius: 50%;
+  background: var(--color-bg-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.email-capture__title {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.email-capture__subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-lg);
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.email-capture__form {
+  max-width: 380px;
+  margin: 0 auto;
+}
+.email-capture__input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  transition: border-color var(--transition);
+  margin-bottom: 0.75rem;
+}
+.email-capture__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+.email-capture__input::placeholder {
+  color: var(--color-text-light);
+}
+
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 0.9rem 2rem;
+  background: var(--color-text);
+  color: var(--color-text-inverse);
+  border: none;
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition);
+  min-height: 52px;
+}
+.btn-primary:hover { background: #2a2a2a; }
+.btn-primary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.email-capture__skip {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--font);
+  transition: color var(--transition);
+}
+.email-capture__skip:hover { color: var(--color-text); }
+
+/* ============================================
+   RESULTS PAGE
+   ============================================ */
+.quiz--results .quiz__header {
+  display: none;
+}
+.results {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding) var(--space-xl);
+}
+
+/* Hero */
+.results__hero {
+  text-align: center;
+  background: linear-gradient(to bottom, var(--color-bg-warm) 70%, var(--color-bg));
+  padding: var(--space-xl) var(--space-md) var(--space-lg);
+  margin: 0 calc(-1 * var(--container-padding)) var(--space-md);
+}
+.results__title {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+.results__shade-name {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-md);
+}
+.results__shade-swatch {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  margin: 0 auto;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+/* Section Labels */
+.results__section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.6rem;
+}
+
+/* Description */
+.results__description {
+  padding: 0 0 var(--space-md);
+  margin-bottom: var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.results__description p {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+/* Formula */
+.results__formula {
+  text-align: left;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+.results__formula-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.results__formula-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.results__formula-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-bg-warm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.results__formula-icon svg {
+  width: 20px;
+  height: 20px;
+}
+.results__formula-item strong {
+  display: block;
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 0.1rem;
+}
+.results__formula-item span {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+}
+
+/* Pro Tip */
+.results__tip {
+  background: var(--color-bg-warm);
+  padding: var(--space-md);
+  padding-left: calc(var(--space-md) + 4px);
+  margin-bottom: var(--space-lg);
+  text-align: left;
+  position: relative;
+  border-left: 3px solid var(--color-accent);
+}
+.results__tip h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent);
+}
+.results__tip p {
+  font-size: 0.85rem;
+  line-height: 1.65;
+}
+
+/* CTA — top (after hero) */
+.results__cta--top {
+  padding: var(--space-md) 0 var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-md);
+}
+
+/* CTA */
+.results__cta {
+  text-align: center;
+  padding: 0 0 var(--space-sm);
+}
+.results__cta .btn-primary {
+  max-width: 100%;
+  width: 100%;
+  font-size: 0.85rem;
+  padding: 1rem;
+}
+
+/* ============================================
+   RESPONSIVE — TABLET+
+   ============================================ */
+@media (min-width: 768px) {
+  :root { --container-padding: 2rem; }
+
+  .tone-grid {
+    gap: 1rem;
+    max-width: 440px;
+  }
+
+  .option-btn {
+    padding: 1.1rem 1.5rem;
+  }
+
+  .results__cta .btn-primary {
+    max-width: 380px;
+  }
+}
+
+/* ============================================
+   UTILITY — SR Only
+   ============================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* ============================================
+   DEMO CONTROLS (remove in production)
+   ============================================ */
+.demo-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-text);
+  color: white;
+  display: flex;
+  gap: 0;
+  z-index: 100;
+  font-size: 0.7rem;
+}
+.demo-nav button {
+  flex: 1;
+  padding: 0.75rem 0.5rem;
+  background: none;
+  border: none;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  color: white;
+  font-family: var(--font);
+  font-size: 0.65rem;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.demo-nav button:hover { background: rgba(255,255,255,0.1); }
+.demo-nav button.active-tab { background: var(--color-accent); color: white; }
+</style>
+</head>
+<body>
+
+<div class="quiz" role="main" aria-label="Shade Finder Quiz">
+
+  <!-- ============ HEADER ============ -->
+  <header class="quiz__header">
+    <div class="quiz__logo"><img src="https://cdn.shopify.com/s/files/1/0727/1897/5233/files/hush_fd088f00-0d59-4151-b468-f9c5299f5020.png?v=1758802160" alt="HUSH GLOW" loading="eager" width="320" height="auto"></div>
+    <div class="quiz__progress" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="7">
+      <div class="quiz__progress-fill" id="progressFill" style="width: 14.28%"></div>
+    </div>
+    <div class="quiz__step-counter" id="stepCounter">Step 1 of 7</div>
+  </header>
+
+  <!-- ============ STEP 1: SKIN TONE ============ -->
+  <section class="quiz__step active" id="step1" aria-label="Step 1: Choose your skin tone">
+    <div class="quiz__content">
+      <h2 class="quiz__title">Choose the skin tone closest to yours</h2>
+      <p class="quiz__subtitle">Just pick the closest one — we'll get more specific</p>
+
+      <div class="tone-grid" role="radiogroup" aria-label="Skin tone options">
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="fair" onclick="selectTone(this, 'fair')">
+          <div class="tone-card__img">
+            <img src="tone-fair.png" alt="Fair skin tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="light" onclick="selectTone(this, 'light')">
+          <div class="tone-card__img">
+            <img src="tone-light.png" alt="Light skin tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="light-medium" onclick="selectTone(this, 'light-medium')">
+          <div class="tone-card__img">
+            <img src="tone-light-medium.png" alt="Light-Medium skin tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="medium" onclick="selectTone(this, 'medium')">
+          <div class="tone-card__img">
+            <img src="tone-medium.png" alt="Medium skin tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="medium-dark" onclick="selectTone(this, 'medium-dark')">
+          <div class="tone-card__img">
+            <img src="tone-medium-dark.png" alt="Medium-Dark skin tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="dark" onclick="selectTone(this, 'dark')">
+          <div class="tone-card__img">
+            <img src="tone-dark.png" alt="Dark skin tone" loading="lazy">
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2: UNDERTONE ============ -->
+  <section class="quiz__step" id="step2" aria-label="Step 2: Identify your undertone">
+    <div class="quiz__content">
+      <h2 class="quiz__title">Which description sounds most like you?</h2>
+      <p class="quiz__subtitle">Quick check to nail your undertone</p>
+
+      <div class="options-list" role="radiogroup" aria-label="Undertone options">
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 2, 'burn-easily')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">
+            <strong>I burn easily</strong>
+            <span>My veins look blue, silver looks best on me</span>
+          </span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 2, 'burn-then-tan')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">
+            <strong>I burn first, then tan</strong>
+            <span>My veins are mixed, both silver and gold work</span>
+          </span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 2, 'tan-easily')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">
+            <strong>I tan easily</strong>
+            <span>My veins look green, gold looks best on me</span>
+          </span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 2, 'not-sure')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">
+            <strong>I'm not sure</strong>
+            <span>Skip this and match me based on my skin tone</span>
+          </span>
+        </button>
+      </div>
+
+      <nav class="quiz__nav" aria-label="Quiz navigation">
+        <button class="quiz__back" onclick="goBack(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3: AGE ============ -->
+  <section class="quiz__step" id="step3" aria-label="Step 3: Your age">
+    <div class="quiz__content">
+      <h2 class="quiz__title">How old are you?</h2>
+      <p class="quiz__subtitle">Age helps us personalize your shade and formula recommendations</p>
+
+      <div class="pills-grid" role="radiogroup" aria-label="Age options">
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '25-34')">25 — 34</button>
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '35-44')">35 — 44</button>
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '45-54')">45 — 54</button>
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '55-64')">55 — 64</button>
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '65-74')">65 — 74</button>
+        <button class="pill-btn" role="radio" aria-checked="false" onclick="selectOption(this, 3, '75+')">75+</button>
+        <button class="pill-btn pill-btn--muted" role="radio" aria-checked="false" onclick="selectOption(this, 3, 'prefer-not')">Prefer not to say</button>
+      </div>
+
+      <nav class="quiz__nav"><button class="quiz__back" onclick="goBack(2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4: SKIN TYPE ============ -->
+  <section class="quiz__step" id="step4" aria-label="Step 4: Skin type">
+    <div class="quiz__content">
+      <h2 class="quiz__title">How would you describe your skin?</h2>
+      <p class="quiz__subtitle">This helps us recommend the right formula</p>
+
+      <div class="options-list" role="radiogroup" aria-label="Skin type options">
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 4, 'dry')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Dry</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 4, 'normal')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Normal</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 4, 'oily')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Oily</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 4, 'combination')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Combination</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 4, 'sensitive')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Sensitive</span>
+        </button>
+      </div>
+
+      <nav class="quiz__nav"><button class="quiz__back" onclick="goBack(3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- ============ STEP 5: SKIN CONCERNS ============ -->
+  <section class="quiz__step" id="step5" aria-label="Step 5: Skin concerns">
+    <div class="quiz__content">
+      <h2 class="quiz__title">What are your main skin concerns?</h2>
+      <p class="quiz__subtitle">Pick the one that bothers you most</p>
+
+      <div class="tone-grid" role="radiogroup" aria-label="Skin concern options">
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="fine-lines" onclick="selectConcern(this, 'fine-lines')">
+          <div class="tone-card__img">
+            <img src="concern-fine-lines.png" alt="Fine lines and wrinkles" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="dark-circles" onclick="selectConcern(this, 'dark-circles')">
+          <div class="tone-card__img">
+            <img src="concern-dark-circles.png" alt="Dark circles" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="redness" onclick="selectConcern(this, 'redness')">
+          <div class="tone-card__img">
+            <img src="concern-redness.png" alt="Redness or uneven tone" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="dryness" onclick="selectConcern(this, 'dryness')">
+          <div class="tone-card__img">
+            <img src="concern-dryness.png" alt="Dryness or flakiness" loading="lazy">
+          </div>
+        </button>
+        <button class="tone-card" role="radio" aria-checked="false" tabindex="0" data-value="dark-spots" onclick="selectConcern(this, 'dark-spots')">
+          <div class="tone-card__img">
+            <img src="concern-dark-spots.png" alt="Dark spots or sun damage" loading="lazy">
+          </div>
+        </button>
+      </div>
+
+      <div class="quiz__skip-row">
+        <button class="quiz__skip-link" onclick="selectConcern(this, 'prefer-not')">Prefer not to answer</button>
+      </div>
+
+      <nav class="quiz__nav"><button class="quiz__back" onclick="goBack(4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- ============ STEP 6: APPLICATION METHOD ============ -->
+  <section class="quiz__step" id="step6" aria-label="Step 6: Application method">
+    <div class="quiz__content">
+      <h2 class="quiz__title">How do you usually apply foundation?</h2>
+      <p class="quiz__subtitle">We're curious</p>
+
+      <div class="method-grid" role="radiogroup" aria-label="Application method options">
+        <button class="method-card" role="radio" aria-checked="false" onclick="selectOption(this, 6, 'fingers')">
+          <span class="method-card__label">Fingers</span>
+        </button>
+        <button class="method-card" role="radio" aria-checked="false" onclick="selectOption(this, 6, 'sponge')">
+          <span class="method-card__label">Sponge</span>
+        </button>
+        <button class="method-card" role="radio" aria-checked="false" onclick="selectOption(this, 6, 'brush')">
+          <span class="method-card__label">Brush</span>
+        </button>
+        <button class="method-card" role="radio" aria-checked="false" onclick="selectOption(this, 6, 'no-foundation')">
+          <span class="method-card__label">Not yet</span>
+        </button>
+      </div>
+
+      <nav class="quiz__nav"><button class="quiz__back" onclick="goBack(5)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- ============ STEP 7: OTHER PRODUCTS ============ -->
+  <section class="quiz__step" id="step7" aria-label="Step 7: Other products">
+    <div class="quiz__content">
+      <h2 class="quiz__title">What other complexion products do you use?</h2>
+      <p class="quiz__subtitle">Pick the one you use most</p>
+
+      <div class="options-list" role="radiogroup" aria-label="Complexion product options">
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'concealer')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Concealer</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'setting-powder')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Setting powder</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'blush')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Blush</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'bronzer')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Bronzer</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'highlighter')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Highlighter</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'primer')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text">Primer</span>
+        </button>
+        <button class="option-btn" role="radio" aria-checked="false" onclick="selectOption(this, 7, 'none')">
+          <span class="option-btn__indicator"></span>
+          <span class="option-btn__text" style="color: var(--color-text-light);">None of these</span>
+        </button>
+      </div>
+
+      <nav class="quiz__nav"><button class="quiz__back" onclick="goBack(6)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- ============ ANALYZING SCREEN ============ -->
+  <section class="quiz__step" id="stepAnalyzing" aria-label="Analyzing your results" aria-live="polite">
+    <div class="analyzing">
+      <div class="analyzing__inner">
+        <div class="analyzing__spinner" aria-hidden="true"></div>
+        <h2 class="analyzing__title">Finding your perfect match...</h2>
+        <ul class="analyzing__steps" id="analyzingSteps">
+          <li class="analyzing__step-item" id="aStep1"><span class="check"></span> Analyzing your skin tone...</li>
+          <li class="analyzing__step-item" id="aStep2"><span class="check"></span> Identifying your undertones...</li>
+          <li class="analyzing__step-item" id="aStep3"><span class="check"></span> Matching your coverage preference...</li>
+          <li class="analyzing__step-item" id="aStep4"><span class="check"></span> Selecting your ideal shade...</li>
+        </ul>
+
+        <blockquote class="analyzing__review">
+          <div class="analyzing__review-avatar">
+            <img src="linda-review.png" alt="Linda" loading="lazy">
+          </div>
+          <div class="analyzing__review-content">
+            <div class="analyzing__review-name">Linda, 53</div>
+            <div class="analyzing__review-meta">
+              <span class="analyzing__stars" aria-label="5 out of 5 stars">★★★★★</span>
+              <span class="analyzing__review-verified">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                Verified Purchase
+              </span>
+            </div>
+            <p>"I honestly didn't think makeup could do THIS. It smooths my dry, uneven skin and doesn't settle into lines. I even got a compliment from my husband — that never happens!"</p>
+          </div>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EMAIL CAPTURE ============ -->
+  <section class="quiz__step" id="stepEmail" aria-label="Get results via email">
+    <div class="email-capture">
+      <div class="email-capture__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c1b2a0" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+      </div>
+      <h2 class="email-capture__title">Get your perfect shade match sent to your inbox!</h2>
+      <p class="email-capture__subtitle">Enter your email to save your personalized results</p>
+
+      <form class="email-capture__form" onsubmit="submitEmail(event)">
+        <label for="quizEmail" class="sr-only">Email address</label>
+        <input type="email" id="quizEmail" class="email-capture__input" placeholder="Your email address" required autocomplete="email">
+        <button type="submit" class="btn-primary">Send my results</button>
+      </form>
+      <button class="email-capture__skip" onclick="showResults()">Skip & see results</button>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS PAGE ============ -->
+  <section class="quiz__step" id="stepResults" aria-label="Your shade match results">
+    <div class="results">
+
+      <!-- Hero -->
+      <div class="results__hero">
+        <h2 class="results__title">Your perfect match is ready!</h2>
+        <div class="results__shade-name" id="resultShadeName">Honey Almond</div>
+        <div class="results__shade-swatch" id="resultSwatch" style="background: #D4A574;"></div>
+      </div>
+
+      <!-- CTA #1 — above the fold -->
+      <div class="results__cta results__cta--top">
+        <a href="https://hushglow.com/products/hush-foundation-cushion?variant=honey-almond" class="btn-primary" id="resultCTATop" style="text-decoration:none; text-align:center;">
+          Get my perfect match
+        </a>
+      </div>
+
+      <!-- Description -->
+      <div class="results__description" id="resultDescription">
+        <div class="results__section-label">Based on your answers</div>
+        <p>This shade was made for you! Hush Glow isn't just going to cover — it's going to hydrate, blur, and protect your skin while it's at it. You're going to love this!</p>
+      </div>
+
+      <!-- Formula -->
+      <div class="results__formula">
+        <div class="results__section-label">Your formula includes</div>
+        <ul class="results__formula-list">
+          <li class="results__formula-item">
+            <span class="results__formula-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C1B2A0" stroke-width="2"><path d="M12 2L14.5 9.5H22L16 14L18.5 21.5L12 17L5.5 21.5L8 14L2 9.5H9.5L12 2Z"/></svg>
+            </span>
+            <div>
+              <strong>Peptides</strong>
+              <span>Plump and smooth fine lines</span>
+            </div>
+          </li>
+          <li class="results__formula-item">
+            <span class="results__formula-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C1B2A0" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+            </span>
+            <div>
+              <strong>Hyaluronic Acid</strong>
+              <span>Hydrate from within</span>
+            </div>
+          </li>
+          <li class="results__formula-item">
+            <span class="results__formula-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#C1B2A0" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            </span>
+            <div>
+              <strong>SPF 30</strong>
+              <span>Built-in sun protection</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pro Tip -->
+      <div class="results__tip" id="resultTip">
+        <h3>Pro tip based on your routine</h3>
+        <p>Start with less than you think you need. Tap it on, let it melt in, build where you need it, and blend with your fingertips if needed!</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="results__cta">
+        <a href="https://hushglow.com/products/hush-foundation-cushion?variant=honey-almond" class="btn-primary" id="resultCTA" style="text-decoration:none; text-align:center;">
+          Get my perfect match
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ DEMO NAVIGATION (remove in production) ============ -->
+<nav class="demo-nav" aria-label="Demo step navigation">
+  <button onclick="showStep('step1')" class="active-tab">Q1</button>
+  <button onclick="showStep('step2')">Q2</button>
+  <button onclick="showStep('step3')">Q3</button>
+  <button onclick="showStep('step4')">Q4</button>
+  <button onclick="showStep('step5')">Q5</button>
+  <button onclick="showStep('step6')">Q6</button>
+  <button onclick="showStep('step7')">Q7</button>
+  <button onclick="showStep('stepAnalyzing')">Analyze</button>
+  <button onclick="showStep('stepEmail')">Email</button>
+  <button onclick="showStep('stepResults')">Result</button>
+</nav>
+
+<script>
+/* ============================================
+   QUIZ LOGIC (demo/prototype)
+   In production: Shopify Liquid + Section JS
+   ============================================ */
+
+let currentStep = 1;
+const totalSteps = 7;
+const answers = {};
+
+// Step 1: Select skin tone (photo grid)
+function selectTone(el, value) {
+  document.querySelectorAll('#step1 .tone-card').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  answers.skinTone = value;
+
+  setTimeout(() => goTo(2), 400);
+}
+
+function selectConcern(el, value) {
+  document.querySelectorAll('#step5 .tone-card').forEach(c => {
+    c.classList.remove('selected');
+    c.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  answers.skinConcern = value;
+
+  setTimeout(() => goTo(6), 400);
+}
+
+// Steps 2-7: Select option (single)
+function selectOption(el, step, value) {
+  const parent = el.closest('.quiz__step');
+  parent.querySelectorAll('.option-btn, .pill-btn, .method-card').forEach(b => {
+    b.classList.remove('selected');
+    b.setAttribute('aria-checked', 'false');
+  });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+
+  const keys = ['', '', 'undertone', 'age', 'skinType', 'concern', 'application', 'otherProducts'];
+  answers[keys[step]] = value;
+
+  if (step < totalSteps) {
+    setTimeout(() => goTo(step + 1), 400);
+  } else {
+    setTimeout(() => startAnalyzing(), 400);
+  }
+}
+
+function goTo(step) {
+  currentStep = step;
+  document.querySelectorAll('.quiz__step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + step).classList.add('active');
+  updateProgress(step);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goBack(toStep) {
+  goTo(toStep);
+}
+
+function updateProgress(step) {
+  const pct = (step / totalSteps) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('stepCounter').textContent = 'Step ' + step + ' of ' + totalSteps;
+
+  // Update demo nav
+  document.querySelectorAll('.demo-nav button').forEach((b, i) => {
+    b.classList.toggle('active-tab', i === step - 1);
+  });
+}
+
+// Analyzing animation
+function startAnalyzing() {
+  document.querySelectorAll('.quiz__step').forEach(s => s.classList.remove('active'));
+  document.getElementById('stepAnalyzing').classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('stepCounter').textContent = 'Analyzing...';
+
+  // Update demo nav
+  document.querySelectorAll('.demo-nav button').forEach((b, i) => b.classList.toggle('active-tab', i === 7));
+
+  const steps = ['aStep1', 'aStep2', 'aStep3', 'aStep4'];
+  steps.forEach((id, i) => {
+    document.getElementById(id).classList.remove('done');
+  });
+
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('done');
+    }, (i + 1) * 1000);
+  });
+
+  setTimeout(() => {
+    showEmailCapture();
+  }, 1000 * 4 + 1000);
+}
+
+function showEmailCapture() {
+  document.querySelectorAll('.quiz__step').forEach(s => s.classList.remove('active'));
+  document.getElementById('stepEmail').classList.add('active');
+  document.getElementById('stepCounter').textContent = 'Almost there!';
+  document.querySelectorAll('.demo-nav button').forEach((b, i) => b.classList.toggle('active-tab', i === 8));
+}
+
+function submitEmail(e) {
+  e.preventDefault();
+  // In production: POST to Klaviyo list
+  showResults();
+}
+
+function showResults() {
+  document.querySelectorAll('.quiz__step').forEach(s => s.classList.remove('active'));
+  document.getElementById('stepResults').classList.add('active');
+  document.querySelector('.quiz').classList.add('quiz--results');
+  document.getElementById('stepCounter').textContent = 'Your result';
+  document.getElementById('progressFill').style.width = '100%';
+  document.querySelectorAll('.demo-nav button').forEach((b, i) => b.classList.toggle('active-tab', i === 9));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Demo: direct step navigation
+function showStep(id) {
+  document.querySelectorAll('.quiz__step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  if (id === 'stepResults') {
+    document.querySelector('.quiz').classList.add('quiz--results');
+  } else {
+    document.querySelector('.quiz').classList.remove('quiz--results');
+  }
+
+  const stepMap = { step1:1, step2:2, step3:3, step4:4, step5:5, step6:6, step7:7 };
+  if (stepMap[id]) updateProgress(stepMap[id]);
+
+  const demoIdx = ['step1','step2','step3','step4','step5','step6','step7','stepAnalyzing','stepEmail','stepResults'].indexOf(id);
+  document.querySelectorAll('.demo-nav button').forEach((b, i) => b.classList.toggle('active-tab', i === demoIdx));
+}
+</script>
+
+</body>
+</html>
